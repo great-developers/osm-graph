@@ -1,0 +1,7 @@
+.idea/
+gin-bin
+assets/*.gob
+.DS_Store
+vendor/
+downloads/
+*.env
