@@ -1,6 +1,11 @@
 package node
 
-import "github.com/paulmach/osm"
+import (
+  "osm-graph/file/json"
+
+  geojson "github.com/paulmach/go.geojson"
+  "github.com/paulmach/osm"
+)
 
 type Node struct {
   ID   int64
@@ -8,6 +13,8 @@ type Node struct {
   Lng  float64
   Tags Tags // proper info of the node.
 }
+
+type Nodes map[int64]*Node
 
 type Tags map[string]string
 
@@ -22,4 +29,12 @@ func FromOSMNode(n osm.Node) Node {
     Lng:  n.Lon,
     Tags: tags,
   }
+}
+
+func (nodes Nodes) ToGeojson() {
+  fc := geojson.NewFeatureCollection()
+  for _, n := range nodes {
+    fc.AddFeature(geojson.NewPointFeature([]float64{n.Lng, n.Lat}))
+  }
+  json.Write("nodes.json", fc)
 }
