@@ -45,3 +45,8 @@ func TestAdd(t *testing.T) {
   fillGraph()
   g.String()
 }
+
+func TestFromOSMFile(t *testing.T) {
+  g := FromOSMFile("./map-el-poblado.osm")
+  g.Nodes.ToGeojson()
+}
