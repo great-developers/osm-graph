@@ -3,25 +3,17 @@ package edge
 import (
   "osm-graph/node"
   "osm-graph/tag"
+  "osm-graph/transport"
 
   "github.com/paulmach/osm"
   "github.com/umahmood/haversine"
-)
-
-type MeansOfTransport int
-
-const (
-  Car MeansOfTransport = iota //same for motorcycle
-  Bus
-  Foot
-  Bicycle
 )
 
 type Edge struct {
   SourceID  int
   DestinyID int
   Weight    float64
-  Transport map[MeansOfTransport]bool
+  Transport map[transport.Mode]bool
   Tags      tag.Tag
 }
 

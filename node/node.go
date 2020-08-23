@@ -10,7 +10,7 @@ type Node struct {
   ID   int
   Lat  float64
   Lng  float64
-  Tags tag.Tag // proper info of the node.
+  Tags tag.Tag
 }
 
 type NodesMap map[int]*Node

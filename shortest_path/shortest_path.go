@@ -57,9 +57,6 @@ func Dijkstra(start, end int, g graph.Graph) (map[int]float64, map[int]int) {
         remaining.Insert(node.Node{Value: e.DestinyID, Cost: currentPathValue})
       }
     }
-    //log.Println("size:", remaining.size)
-
   }
-
   return pathWeight, previous
 }

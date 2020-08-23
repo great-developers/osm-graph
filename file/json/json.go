@@ -7,6 +7,8 @@ import (
   "os"
 )
 
+// Write a .json file on the given path from the given value.
+// The function returns the created file name.
 func Write(name string, content interface{}) string {
   f, err := os.Create(name)
   if err != nil {

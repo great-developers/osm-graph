@@ -71,61 +71,6 @@ func FromOSMFile(path string) (Graph, error) {
   return g, nil
 }
 
-//func FromOSMPBFFile(path string) (Graph, error) {
-//  g := Graph{}
-//  ww := map[int64]osm.Way{}
-//  rr := map[int64]osm.Relation{}
-//  f, err := os.Open(path)
-//  if err != nil {
-//    return g, err
-//  }
-//  defer f.Close()
-//
-//  scanner := osmpbf.New(context.Background(), f, 3)
-//  defer scanner.Close()
-//
-//  for scanner.Scan() {
-//    o := scanner.Object()
-//    switch o.ObjectID().Type() {
-//    case "node":
-//      g.AddNode(node.FromOSMNode(*o.(*osm.Node)))
-//
-//    case "relation":
-//      r := *o.(*osm.Relation)
-//      auxTags := map[string]bool{}
-//      for i := range r.Tags {
-//        auxTags[r.Tags[i].Key] = false
-//      }
-//      if _, ok := auxTags["building"]; !ok {
-//        rr[r.ID.FeatureID().Ref()] = r
-//      }
-//
-//    case "way":
-//      w := *o.(*osm.Way)
-//      ww[w.ID.FeatureID().Ref()] = w
-//
-//    default:
-//      continue
-//    }
-//  }
-//  scanErr := scanner.Err()
-//  if scanErr != nil {
-//    return g, scanErr
-//  }
-//  var auxE []edge.Edges
-//  for _, v := range rr {
-//    auxE = append(auxE, edge.FromOSMRelation(v, rr, ww, g.Nodes))
-//  }
-//
-//  for _, v := range ww {
-//    auxE = append(auxE, edge.FromWays(v, g.Nodes))
-//  }
-//
-//  //array to array
-//  g.AddEdges(auxE)
-//  return g, nil
-//}
-
 func (g *Graph) AddEdges(edges []edge.Edges) {
   if g.Edges == nil {
     g.Edges = make(edge.Edges)
