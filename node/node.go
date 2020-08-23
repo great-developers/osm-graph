@@ -1,8 +1,7 @@
 package node
 
 import (
-  "osm-graph/tag"
-
+  "github.com/JesseleDuran/osm-graph/tag"
   "github.com/paulmach/osm"
 )
 

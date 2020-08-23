@@ -3,9 +3,9 @@ package graph
 import (
   "context"
   "os"
-  "osm-graph/edge"
-  "osm-graph/node"
 
+  "github.com/JesseleDuran/osm-graph/edge"
+  "github.com/JesseleDuran/osm-graph/node"
   "github.com/paulmach/osm"
   "github.com/paulmach/osm/osmxml"
 )

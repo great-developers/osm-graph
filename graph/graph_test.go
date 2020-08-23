@@ -2,8 +2,9 @@ package graph
 
 import (
   "log"
-  "osm-graph/node"
   "testing"
+
+  "github.com/JesseleDuran/osm-graph/node"
 )
 
 var g Graph
@@ -54,7 +55,3 @@ func TestFromOSMFile(t *testing.T) {
   log.Println(len(g.Nodes))
   log.Println(len(g.Edges[6069561818]))
 }
-
-//func TestFromOSMPBFFile(t *testing.T) {
-//  FromOSMPBFFile("/Users/jesseleduran/Documents/secure route graph/osm-graph/graph/testdata/colombia-latest.osm.pbf")
-//}

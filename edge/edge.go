@@ -1,10 +1,9 @@
 package edge
 
 import (
-  "osm-graph/node"
-  "osm-graph/tag"
-  "osm-graph/transport"
-
+  "github.com/JesseleDuran/osm-graph/node"
+  "github.com/JesseleDuran/osm-graph/tag"
+  "github.com/JesseleDuran/osm-graph/transport"
   "github.com/paulmach/osm"
   "github.com/umahmood/haversine"
 )

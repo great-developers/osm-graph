@@ -2,7 +2,8 @@ package heap
 
 import (
   "errors"
-  "osm-graph/shortest_path/node"
+
+  "github.com/JesseleDuran/osm-graph/shortest_path/node"
 )
 
 var (

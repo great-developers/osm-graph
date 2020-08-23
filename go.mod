@@ -1,4 +1,4 @@
-module osm-graph
+module github.com/JesseleDuran/osm-graph
 
 go 1.13
 

@@ -2,9 +2,10 @@ package shortest_path
 
 import (
   "math"
-  "osm-graph/graph"
-  "osm-graph/shortest_path/heap"
-  "osm-graph/shortest_path/node"
+
+  "github.com/JesseleDuran/osm-graph/graph"
+  "github.com/JesseleDuran/osm-graph/shortest_path/heap"
+  "github.com/JesseleDuran/osm-graph/shortest_path/node"
 )
 
 const INFINITE = math.MaxInt64

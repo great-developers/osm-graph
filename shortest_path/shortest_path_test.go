@@ -3,9 +3,10 @@ package shortest_path
 import (
   "log"
   "math"
-  "osm-graph/graph"
   "testing"
   "time"
+
+  "github.com/JesseleDuran/osm-graph/graph"
 )
 
 func TestDijkstra(t *testing.T) {
