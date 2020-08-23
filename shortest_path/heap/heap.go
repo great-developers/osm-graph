@@ -9,12 +9,14 @@ var (
   ErrHeapEmpty = errors.New("heap is empty")
 )
 
+//Heap represents a priority heap based on the weight of its nodes.
 type Heap struct {
   items    node.Nodes
   size     int
   capacity int
 }
 
+//CreateN creates an empty heap of capacity N.
 func CreateN(n int) Heap {
   return Heap{
     items:    make(node.Nodes, n),
@@ -23,6 +25,9 @@ func CreateN(n int) Heap {
   }
 }
 
+//ensureExtraCapacity checks if the current size reaches the capacity of the
+//heap, if so, then the current items are copied to an array with twice of the
+//current capacity
 func (h *Heap) ensureExtraCapacity() {
   if h.size == h.capacity {
     doubleSize := make(node.Nodes, h.capacity*2)
@@ -32,7 +37,7 @@ func (h *Heap) ensureExtraCapacity() {
   }
 }
 
-// Insert add an element to the heap. Assigns the items in the first free
+// Insert adds an element to the heap. Assigns the items in the first free
 // position, calls heapifyUp to restore heap condition, and increases the
 // counter of total of current data.
 func (h *Heap) Insert(n node.Node) {

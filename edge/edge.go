@@ -9,6 +9,7 @@ import (
   "github.com/umahmood/haversine"
 )
 
+//Edge represents the way nodes are going to be related.
 type Edge struct {
   SourceID  int
   DestinyID int
@@ -17,10 +18,9 @@ type Edge struct {
   Tags      tag.Tag
 }
 
-// Edges represents many "Edge" where the key of the first map is the ID of
-// the Source node. The key of the second map is the ID of the Destiny node,
-// which gives the resulting Edge between both nodes as a value.
-// In this way it is optimized to apply Dijkstra.
+// Edges represents many "Edges" where the key of the first map is SourceID.
+//The key of the second map is the DestinyID, which gives the resulting Edge
+//between both nodes as a value. In this way it is optimized to apply Dijkstra.
 type Edges map[int]map[int]*Edge
 
 func FromOSMRelation(
