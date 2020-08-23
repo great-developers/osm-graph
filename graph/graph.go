@@ -1,4 +1,3 @@
-// Package graph creates a Graph data structure for the Item type
 package graph
 
 import (
@@ -11,6 +10,7 @@ import (
   "github.com/paulmach/osm/osmxml"
 )
 
+//Graph it's the representation to be able to travel a geographical space.
 type Graph struct {
   Nodes node.NodesMap
   Edges edge.Edges

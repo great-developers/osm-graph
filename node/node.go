@@ -6,6 +6,7 @@ import (
   "github.com/paulmach/osm"
 )
 
+//Node represents a geographical point of interest in a map.
 type Node struct {
   ID   int
   Lat  float64
@@ -13,6 +14,8 @@ type Node struct {
   Tags tag.Tag
 }
 
+//NodesMap is a map where the key is the ID of the Node,
+//and the value a reference of it.
 type NodesMap map[int]*Node
 
 type Nodes []Node
