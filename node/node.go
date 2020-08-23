@@ -42,11 +42,7 @@ func FromOSMRelation(
     }
     if m.Type == "way" {
       w := ways[m.Ref]
-      for i := range w.Nodes {
-        if v, ok := nn[int(w.Nodes[i].ID)]; ok {
-          aux = append(aux, *v)
-        }
-      }
+      aux = append(aux, FromWay(w, nn)...)
     }
     if m.Type == "relation" {
       if v, ok := rr[m.Ref]; ok {
@@ -55,6 +51,16 @@ func FromOSMRelation(
     }
   }
   return aux
+}
+
+func FromWay(w osm.Way, nn NodesMap) Nodes {
+  r := make(Nodes, 0)
+  for i := range w.Nodes {
+    if v, ok := nn[int(w.Nodes[i].ID)]; ok {
+      r = append(r, *v)
+    }
+  }
+  return r
 }
 
 func (nodes Nodes) IDs() []int {

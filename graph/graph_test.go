@@ -1,6 +1,7 @@
 package graph
 
 import (
+  "log"
   "osm-graph/node"
   "testing"
 )
@@ -47,7 +48,13 @@ func TestAdd(t *testing.T) {
 }
 
 func TestFromOSMFile(t *testing.T) {
-  FromOSMFile("testdata/map-el-poblado.osm")
+  g, _ := FromOSMFile("testdata/Bogota.osm")
   //g.NodesMap.ToGeojson()
-
+  log.Println("finished")
+  log.Println(len(g.Nodes))
+  log.Println(len(g.Edges[6069561818]))
 }
+
+//func TestFromOSMPBFFile(t *testing.T) {
+//  FromOSMPBFFile("/Users/jesseleduran/Documents/secure route graph/osm-graph/graph/testdata/colombia-latest.osm.pbf")
+//}

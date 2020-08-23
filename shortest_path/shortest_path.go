@@ -16,7 +16,7 @@ func Dijkstra(start, end int, g graph.Graph) (map[int]float64, map[int]int) {
   //maps from each node to the previous node in the "current" shortest path.
   previous := make(map[int]int, 0)
 
-  remaining := heap.CreateN(50)
+  remaining := heap.CreateN(100)
   // insert first node id the PQ, the start node.
   remaining.Insert(node.Node{Value: start, Cost: 0})
 

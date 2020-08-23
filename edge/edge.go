@@ -61,22 +61,16 @@ func FromOSMRelation(
     if _, ok := edges[destiny.ID]; !ok {
       edges[destiny.ID] = make(map[int]*Edge, 0)
     }
-    e := Edge{
+
+    edges[source.ID][destiny.ID] = &Edge{
       SourceID:  source.ID,
       DestinyID: destiny.ID,
       Weight:    meters,
       Transport: nil,
       Tags:      tag.FromOSMTags(r.Tags),
     }
-    if v, ok := edges[source.ID][destiny.ID]; ok {
-      if v.Weight > meters {
-        edges[source.ID][destiny.ID] = &e
-      }
-    } else {
-      edges[source.ID][destiny.ID] = &e
-    }
 
-    e = Edge{
+    edges[destiny.ID][source.ID] = &Edge{
       SourceID:  destiny.ID,
       DestinyID: source.ID,
       Weight:    meters,
@@ -84,12 +78,48 @@ func FromOSMRelation(
       Tags:      tag.FromOSMTags(r.Tags),
     }
 
-    if v, ok := edges[destiny.ID][source.ID]; ok {
-      if v.Weight > meters {
-        edges[destiny.ID][source.ID] = &e
-      }
-    } else {
-      edges[destiny.ID][source.ID] = &e
+  }
+  return edges
+}
+
+func FromWays(w osm.Way, nn node.NodesMap) Edges {
+  edges := make(Edges)
+  nodes := node.FromWay(w, nn)
+
+  for i := 0; i < len(nodes)-1; i++ {
+    source := nodes[i]
+    destiny := nodes[i+1]
+
+    _, km := haversine.Distance(
+      haversine.Coord{Lat: source.Lat, Lon: source.Lng},
+      haversine.Coord{Lat: destiny.Lat, Lon: destiny.Lng},
+    )
+    meters := km * 1000
+
+    // checks if the source already has some edges, if not, initialize it.
+    if _, ok := edges[source.ID]; !ok {
+      edges[source.ID] = make(map[int]*Edge, 0)
+    }
+
+    // checks if the destiny already has some edges, if not, initialize it.
+    if _, ok := edges[destiny.ID]; !ok {
+      edges[destiny.ID] = make(map[int]*Edge, 0)
+    }
+
+    edges[source.ID][destiny.ID] = &Edge{
+      SourceID:  source.ID,
+      DestinyID: destiny.ID,
+      Weight:    meters,
+      Transport: nil,
+      Tags:      tag.FromOSMTags(w.Tags),
+    }
+
+    edges[destiny.ID][source.ID] = &Edge{
+      SourceID:  destiny.ID,
+      DestinyID: source.ID,
+      Weight:    meters,
+      Transport: nil,
+      Tags:      tag.FromOSMTags(w.Tags),
     }
   }
   return edges
