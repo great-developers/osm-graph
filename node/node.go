@@ -1,8 +1,8 @@
 package node
 
 import (
+  "github.com/JesseleDuran/osm-graph/resources"
   "github.com/JesseleDuran/osm-graph/coordinates"
-  "github.com/JesseleDuran/osm-graph/graph/aux"
   "github.com/JesseleDuran/osm-graph/tag"
   "github.com/paulmach/osm"
 )
@@ -41,11 +41,11 @@ func FromOSMRelation(nn NodesMap, r osm.Relation, nodesAux Nodes) Nodes {
       }
     }
     if m.Type == "way" {
-      w := aux.Ways[m.Ref]
+      w := resources.Ways[m.Ref]
       nodesAux = append(nodesAux, FromWay(w, nn)...)
     }
     if m.Type == "relation" {
-      if v, ok := aux.Relations[m.Ref]; ok {
+      if v, ok := resources.Relations[m.Ref]; ok {
         nodesAux = append(nodesAux, FromOSMRelation(nn, v, Nodes{})...)
       }
     }

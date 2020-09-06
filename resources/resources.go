@@ -1,4 +1,4 @@
-package aux
+package resources
 
 import "github.com/paulmach/osm"
 

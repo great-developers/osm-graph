@@ -5,8 +5,8 @@ import (
   "os"
 
   "github.com/JesseleDuran/osm-graph/edge"
-  "github.com/JesseleDuran/osm-graph/graph/aux"
   "github.com/JesseleDuran/osm-graph/node"
+  "github.com/JesseleDuran/osm-graph/resources"
   "github.com/JesseleDuran/osm-graph/tag"
   "github.com/paulmach/osm"
   "github.com/paulmach/osm/osmxml"
@@ -38,12 +38,12 @@ func FromOSMFile(path string, weight edge.Weight) (Graph, error) {
       r := *o.(*osm.Relation)
       auxTags := tag.FromOSMTags(r.Tags)
       if _, ok := auxTags["building"]; !ok {
-        aux.Relations[r.ID.FeatureID().Ref()] = r
+        resources.Relations[r.ID.FeatureID().Ref()] = r
       }
 
     case "way":
       w := *o.(*osm.Way)
-      aux.Ways[w.ID.FeatureID().Ref()] = w
+      resources.Ways[w.ID.FeatureID().Ref()] = w
 
     default:
       continue
@@ -55,10 +55,10 @@ func FromOSMFile(path string, weight edge.Weight) (Graph, error) {
   }
 
   var auxE []edge.Edges
-  for _, v := range aux.Relations {
+  for _, v := range resources.Relations {
     auxE = append(auxE, edge.FromOSMRelation(v, g.Nodes, weight))
   }
-  for _, v := range aux.Ways {
+  for _, v := range resources.Ways {
     auxE = append(auxE, edge.FromWays(v, g.Nodes, weight))
   }
 
