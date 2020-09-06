@@ -1,11 +1,11 @@
 package edge
 
 import (
+  "github.com/JesseleDuran/osm-graph/coordinates"
   "github.com/JesseleDuran/osm-graph/node"
   "github.com/JesseleDuran/osm-graph/tag"
   "github.com/JesseleDuran/osm-graph/transport"
   "github.com/paulmach/osm"
-  "github.com/umahmood/haversine"
 )
 
 //Edge represents the way nodes are going to be related.
@@ -17,31 +17,28 @@ type Edge struct {
   Tags      tag.Tag
 }
 
+type Weight func(coordinates.Coordinates, coordinates.Coordinates) float64
+
 // Edges represents many "Edges" where the key of the first map is SourceID.
 //The key of the second map is the DestinyID, which gives the resulting Edge
 //between both nodes as a value. In this way it is optimized to apply Dijkstra.
 type Edges map[int]map[int]*Edge
 
-func FromOSMRelation(
-  r osm.Relation,
-  rr map[int64]osm.Relation,
-  ways map[int64]osm.Way,
-  nn node.NodesMap) Edges {
+func FromOSMRelation(r osm.Relation, nn node.NodesMap, weight Weight) Edges {
   edges := make(Edges)
-  nodes := node.FromOSMRelation(nn, r, rr, ways, []node.Node{})
+  nodes := node.FromOSMRelation(nn, r, []node.Node{})
   for i := 0; i < len(nodes)-1; i++ {
     source := nodes[i]
     destiny := nodes[i+1]
-
     if source.ID == destiny.ID {
       continue
     }
-
-    _, km := haversine.Distance(
-      haversine.Coord{Lat: source.Lat, Lon: source.Lng},
-      haversine.Coord{Lat: destiny.Lat, Lon: destiny.Lng},
-    )
-    meters := km * 1000
+    w := 0.0
+    if weight == nil {
+      w = coordinates.Distance(source.Point, destiny.Point)
+    } else {
+      w = weight(source.Point, destiny.Point)
+    }
 
     // checks if the source already has some edges, if not, initialize it.
     if _, ok := edges[source.ID]; !ok {
@@ -56,7 +53,7 @@ func FromOSMRelation(
     edges[source.ID][destiny.ID] = &Edge{
       SourceID:  source.ID,
       DestinyID: destiny.ID,
-      Weight:    meters,
+      Weight:    w,
       Transport: nil,
       Tags:      tag.FromOSMTags(r.Tags),
     }
@@ -64,28 +61,28 @@ func FromOSMRelation(
     edges[destiny.ID][source.ID] = &Edge{
       SourceID:  destiny.ID,
       DestinyID: source.ID,
-      Weight:    meters,
+      Weight:    w,
       Transport: nil,
       Tags:      tag.FromOSMTags(r.Tags),
     }
-
   }
   return edges
 }
 
-func FromWays(w osm.Way, nn node.NodesMap) Edges {
+func FromWays(way osm.Way, nn node.NodesMap, weight Weight) Edges {
   edges := make(Edges)
-  nodes := node.FromWay(w, nn)
+  nodes := node.FromWay(way, nn)
 
   for i := 0; i < len(nodes)-1; i++ {
     source := nodes[i]
     destiny := nodes[i+1]
 
-    _, km := haversine.Distance(
-      haversine.Coord{Lat: source.Lat, Lon: source.Lng},
-      haversine.Coord{Lat: destiny.Lat, Lon: destiny.Lng},
-    )
-    meters := km * 1000
+    w := 0.0
+    if weight == nil {
+      w = coordinates.Distance(source.Point, destiny.Point)
+    } else {
+      w = weight(source.Point, destiny.Point)
+    }
 
     // checks if the source already has some edges, if not, initialize it.
     if _, ok := edges[source.ID]; !ok {
@@ -100,17 +97,17 @@ func FromWays(w osm.Way, nn node.NodesMap) Edges {
     edges[source.ID][destiny.ID] = &Edge{
       SourceID:  source.ID,
       DestinyID: destiny.ID,
-      Weight:    meters,
+      Weight:    w,
       Transport: nil,
-      Tags:      tag.FromOSMTags(w.Tags),
+      Tags:      tag.FromOSMTags(way.Tags),
     }
 
     edges[destiny.ID][source.ID] = &Edge{
       SourceID:  destiny.ID,
       DestinyID: source.ID,
-      Weight:    meters,
+      Weight:    w,
       Transport: nil,
-      Tags:      tag.FromOSMTags(w.Tags),
+      Tags:      tag.FromOSMTags(way.Tags),
     }
   }
   return edges

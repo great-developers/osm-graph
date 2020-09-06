@@ -61,3 +61,16 @@ func Dijkstra(start, end int, g graph.Graph) (map[int]float64, map[int]int) {
   }
   return pathWeight, previous
 }
+
+//key : end, value: prev
+func Path(start, end int, previous map[int]int) []int {
+  result := make([]int, 0)
+  result = append(result, end)
+  prev := 0
+  for prev != start {
+    prev = previous[end]
+    result = append(result, prev)
+    end = prev
+  }
+  return result
+}

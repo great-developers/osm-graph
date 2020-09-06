@@ -5,7 +5,9 @@ import (
   "os"
 
   "github.com/JesseleDuran/osm-graph/edge"
+  "github.com/JesseleDuran/osm-graph/graph/aux"
   "github.com/JesseleDuran/osm-graph/node"
+  "github.com/JesseleDuran/osm-graph/tag"
   "github.com/paulmach/osm"
   "github.com/paulmach/osm/osmxml"
 )
@@ -16,16 +18,13 @@ type Graph struct {
   Edges edge.Edges
 }
 
-func FromOSMFile(path string) (Graph, error) {
+func FromOSMFile(path string, weight edge.Weight) (Graph, error) {
   g := Graph{}
-  ww := map[int64]osm.Way{}
-  rr := map[int64]osm.Relation{}
   f, err := os.Open(path)
   if err != nil {
     return g, err
   }
   defer f.Close()
-
   scanner := osmxml.New(context.Background(), f)
   defer scanner.Close()
 
@@ -37,17 +36,14 @@ func FromOSMFile(path string) (Graph, error) {
 
     case "relation":
       r := *o.(*osm.Relation)
-      auxTags := map[string]bool{}
-      for i := range r.Tags {
-        auxTags[r.Tags[i].Key] = false
-      }
+      auxTags := tag.FromOSMTags(r.Tags)
       if _, ok := auxTags["building"]; !ok {
-        rr[r.ID.FeatureID().Ref()] = r
+        aux.Relations[r.ID.FeatureID().Ref()] = r
       }
 
     case "way":
       w := *o.(*osm.Way)
-      ww[w.ID.FeatureID().Ref()] = w
+      aux.Ways[w.ID.FeatureID().Ref()] = w
 
     default:
       continue
@@ -57,13 +53,13 @@ func FromOSMFile(path string) (Graph, error) {
   if scanErr != nil {
     return g, scanErr
   }
-  var auxE []edge.Edges
-  for _, v := range rr {
-    auxE = append(auxE, edge.FromOSMRelation(v, rr, ww, g.Nodes))
-  }
 
-  for _, v := range ww {
-    auxE = append(auxE, edge.FromWays(v, g.Nodes))
+  var auxE []edge.Edges
+  for _, v := range aux.Relations {
+    auxE = append(auxE, edge.FromOSMRelation(v, g.Nodes, weight))
+  }
+  for _, v := range aux.Ways {
+    auxE = append(auxE, edge.FromWays(v, g.Nodes, weight))
   }
 
   //array to array
@@ -114,17 +110,4 @@ func (g *Graph) AddNode(n node.Node) {
     g.Nodes = make(node.NodesMap)
   }
   g.Nodes[n.ID] = &n
-}
-
-func (g *Graph) String() {
-  //s := ""
-  //for k, _ := range g.NodesMap {
-  //  s += fmt.Sprintf("%d  ->", k)
-  //  near := g.Edges[k]
-  //  for j := 0; j < len(near); j++ {
-  //    s += fmt.Sprintf(" %d ", near[j])
-  //  }
-  //  s += "\n"
-  //}
-  //fmt.Println(s)
 }

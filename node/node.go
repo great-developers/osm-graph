@@ -1,16 +1,17 @@
 package node
 
 import (
+  "github.com/JesseleDuran/osm-graph/coordinates"
+  "github.com/JesseleDuran/osm-graph/graph/aux"
   "github.com/JesseleDuran/osm-graph/tag"
   "github.com/paulmach/osm"
 )
 
 //Node represents a geographical point of interest in a map.
 type Node struct {
-  ID   int
-  Lat  float64
-  Lng  float64
-  Tags tag.Tag
+  ID    int
+  Point coordinates.Coordinates
+  Tags  tag.Tag
 }
 
 //NodesMap is a map where the key is the ID of the Node,
@@ -21,38 +22,35 @@ type Nodes []Node
 
 func FromOSMNode(n osm.Node) Node {
   return Node{
-    ID:   int(n.ID),
-    Lat:  n.Lat,
-    Lng:  n.Lon,
+    ID: int(n.ID),
+    Point: coordinates.Coordinates{
+      Lat: n.Lat,
+      Lng: n.Lon,
+    },
     Tags: tag.FromOSMTags(n.Tags),
   }
 }
 
-func FromOSMRelation(
-  nn NodesMap,
-  r osm.Relation,
-  rr map[int64]osm.Relation,
-  ways map[int64]osm.Way,
-  aux Nodes) Nodes {
+func FromOSMRelation(nn NodesMap, r osm.Relation, nodesAux Nodes) Nodes {
   for i := 0; i < len(r.Members); i++ {
     //TODO: make this as a go routine.
     m := r.Members[i]
     if m.Type == "node" {
       if v, ok := nn[int(m.Ref)]; ok {
-        aux = append(aux, *v)
+        nodesAux = append(nodesAux, *v)
       }
     }
     if m.Type == "way" {
-      w := ways[m.Ref]
-      aux = append(aux, FromWay(w, nn)...)
+      w := aux.Ways[m.Ref]
+      nodesAux = append(nodesAux, FromWay(w, nn)...)
     }
     if m.Type == "relation" {
-      if v, ok := rr[m.Ref]; ok {
-        aux = append(aux, FromOSMRelation(nn, v, rr, ways, Nodes{})...)
+      if v, ok := aux.Relations[m.Ref]; ok {
+        nodesAux = append(nodesAux, FromOSMRelation(nn, v, Nodes{})...)
       }
     }
   }
-  return aux
+  return nodesAux
 }
 
 func FromWay(w osm.Way, nn NodesMap) Nodes {
