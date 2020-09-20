@@ -14,27 +14,13 @@ var (
 type Heap struct {
   items    node.Nodes
   size     int
-  capacity int
 }
 
 //CreateN creates an empty heap of capacity N.
-func CreateN(n int) Heap {
+func Create() Heap {
   return Heap{
-    items:    make(node.Nodes, n),
+    items:    make(node.Nodes, 0),
     size:     0,
-    capacity: n,
-  }
-}
-
-//ensureExtraCapacity checks if the current size reaches the capacity of the
-//heap, if so, then the current items are copied to an array with twice of the
-//current capacity
-func (h *Heap) ensureExtraCapacity() {
-  if h.size == h.capacity {
-    doubleSize := make(node.Nodes, h.capacity*2)
-    doubleSize = append(doubleSize, h.items...)
-    h.items = doubleSize
-    h.capacity = len(doubleSize)
   }
 }
 
@@ -42,8 +28,7 @@ func (h *Heap) ensureExtraCapacity() {
 // position, calls heapifyUp to restore heap condition, and increases the
 // counter of total of current data.
 func (h *Heap) Insert(n node.Node) {
-  h.ensureExtraCapacity()
-  h.items[h.size] = n
+  h.items = append(h.items, n)
   h.size++
   h.heapifyUp()
 }
@@ -66,7 +51,6 @@ func (h *Heap) DeleteMin() error {
   h.size--
   h.items = h.items[:len(h.items)-1]
   h.heapifyDown(0)
-  h.capacity = len(h.items)
   return nil
 }
 

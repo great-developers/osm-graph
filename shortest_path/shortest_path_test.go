@@ -23,23 +23,23 @@ func TestDijkstra(t *testing.T) {
   log.Println("done graph", end.Milliseconds(), len(g.Nodes))
 
   //start = time.Now()
-  //for i := 0; i <= 100; i++ {
+  for i := 0; i <= 100; i++ {
     weight, prev := Dijkstra(3352122607, 0, g)
     //end = time.Since(start)
-    fmt.Println("done dijsk", end.Milliseconds())
+    //fmt.Println("done dijsk", end.Milliseconds())
     fmt.Println("----------------------------")
     r := make([]int, 0)
     for k, v := range weight {
       if v != math.MaxInt64 {
-        fmt.Println("k", k, v)
-        fmt.Println("rev", prev[k])
+        //fmt.Println("k", k, v)
+        //fmt.Println("rev", prev[k])
         r = append(r, prev[k])
       }
     }
     sort.Ints(r)
     fmt.Println(r)
     fmt.Println("----------------------------")
-  //}
+  }
 }
 
 func TestPath(t *testing.T) {
