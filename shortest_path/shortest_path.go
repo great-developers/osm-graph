@@ -3,6 +3,7 @@ package shortest_path
 import (
   "math"
 
+  "github.com/JesseleDuran/osm-graph/coordinates"
   "github.com/JesseleDuran/osm-graph/graph"
   "github.com/JesseleDuran/osm-graph/shortest_path/heap"
   "github.com/JesseleDuran/osm-graph/shortest_path/node"
@@ -70,6 +71,18 @@ func Path(start, end int, previous map[int]int) []int {
   for prev != start {
     prev = previous[end]
     result = append(result, prev)
+    end = prev
+  }
+  return result
+}
+
+func CoordinatesPath(start, end int, previous map[int]int, g graph.Graph) []coordinates.Coordinates {
+  result := make([]coordinates.Coordinates, 0)
+  result = append(result, g.Nodes[end].Point)
+  prev := 0
+  for prev != start {
+    prev = previous[end]
+    result = append(result, g.Nodes[prev].Point)
     end = prev
   }
   return result
