@@ -3,8 +3,6 @@ package edge
 import (
   "github.com/JesseleDuran/osm-graph/coordinates"
   "github.com/JesseleDuran/osm-graph/node"
-  "github.com/JesseleDuran/osm-graph/tag"
-  "github.com/JesseleDuran/osm-graph/transport"
   "github.com/paulmach/osm"
 )
 
@@ -13,8 +11,8 @@ type Edge struct {
   SourceID  int
   DestinyID int
   Weight    float64
-  Transport map[transport.Mode]bool
-  Tags      tag.Tag
+  //Transport map[transport.Mode]bool
+  //Tags      tag.Tag
 }
 
 type Weight func(coordinates.Coordinates, coordinates.Coordinates) float64
@@ -34,11 +32,11 @@ func FromOSMRelation(r osm.Relation, nn node.NodesMap, weight Weight) Edges {
       continue
     }
     w := 0.0
-    if weight == nil {
-      w = coordinates.Distance(source.Point, destiny.Point)
-    } else {
-      w = weight(source.Point, destiny.Point)
-    }
+    //if weight == nil {
+    // w = coordinates.Distance(s.Point, destiny.Point)
+    //} else {
+    // w = weight(s.Point, destiny.Point)
+    //}
 
     // checks if the source already has some edges, if not, initialize it.
     if _, ok := edges[source.ID]; !ok {
@@ -54,16 +52,16 @@ func FromOSMRelation(r osm.Relation, nn node.NodesMap, weight Weight) Edges {
       SourceID:  source.ID,
       DestinyID: destiny.ID,
       Weight:    w,
-      Transport: nil,
-      Tags:      tag.FromOSMTags(r.Tags),
+      //Transport: nil,
+      //Tags:      tag.FromOSMTags(r.Tags),
     }
 
     edges[destiny.ID][source.ID] = &Edge{
       SourceID:  destiny.ID,
       DestinyID: source.ID,
       Weight:    w,
-      Transport: nil,
-      Tags:      tag.FromOSMTags(r.Tags),
+      //Transport: nil,
+      //Tags:      tag.FromOSMTags(r.Tags),
     }
   }
   return edges
@@ -78,11 +76,11 @@ func FromWays(way osm.Way, nn node.NodesMap, weight Weight) Edges {
     destiny := nodes[i+1]
 
     w := 0.0
-    if weight == nil {
-      w = coordinates.Distance(source.Point, destiny.Point)
-    } else {
-      w = weight(source.Point, destiny.Point)
-    }
+    //if weight == nil {
+    //  w = coordinates.Distance(source.Point, destiny.Point)
+    //} else {
+    //  w = weight(source.Point, destiny.Point)
+    //}
 
     // checks if the source already has some edges, if not, initialize it.
     if _, ok := edges[source.ID]; !ok {
@@ -98,16 +96,16 @@ func FromWays(way osm.Way, nn node.NodesMap, weight Weight) Edges {
       SourceID:  source.ID,
       DestinyID: destiny.ID,
       Weight:    w,
-      Transport: nil,
-      Tags:      tag.FromOSMTags(way.Tags),
+      //Transport: nil,
+      //Tags:      tag.FromOSMTags(way.Tags),
     }
 
     edges[destiny.ID][source.ID] = &Edge{
       SourceID:  destiny.ID,
       DestinyID: source.ID,
       Weight:    w,
-      Transport: nil,
-      Tags:      tag.FromOSMTags(way.Tags),
+      //Transport: nil,
+      //Tags:      tag.FromOSMTags(way.Tags),
     }
   }
   return edges

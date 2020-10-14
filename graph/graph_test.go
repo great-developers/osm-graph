@@ -3,6 +3,7 @@ package graph
 import (
   "log"
   "testing"
+  "time"
 
   "github.com/JesseleDuran/osm-graph/node"
 )
@@ -43,15 +44,14 @@ func fillGraph() {
   //g.AddEdge(4, 1)
 }
 
-func TestAdd(t *testing.T) {
-  fillGraph()
-  g.String()
-}
-
 func TestFromOSMFile(t *testing.T) {
-  g, _ := FromOSMFile("testdata/Bogota.osm")
+  g, _ := FromOSMFile("/Users/jesseleduran/Documents/secure route graph/osm-graph/graph/testdata/sp.osm", nil)
   //g.NodesMap.ToGeojson()
-  log.Println("finished")
-  log.Println(len(g.Nodes))
-  log.Println(len(g.Edges[6069561818]))
+  log.Println("finished", len(g.Nodes))
+  //for k, _ := range g.NodesToCellID {
+  // c := s2.CellID(k)
+  // log.Println("token", c.LatLng())
+  //}
+  //log.Println(g.NodesToCellID)
+  time.Sleep(2*time.Hour)
 }

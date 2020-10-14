@@ -1,17 +1,17 @@
 package node
 
 import (
-  "github.com/JesseleDuran/osm-graph/resources"
   "github.com/JesseleDuran/osm-graph/coordinates"
-  "github.com/JesseleDuran/osm-graph/tag"
+  "github.com/JesseleDuran/osm-graph/resources"
   "github.com/paulmach/osm"
 )
 
 //Node represents a geographical point of interest in a map.
 type Node struct {
-  ID    int
-  Point coordinates.Coordinates
-  Tags  tag.Tag
+  ID     int
+  //CellID uint64
+  //Point  coordinates.Coordinates
+  //Tags   tag.Tag
 }
 
 //NodesMap is a map where the key is the ID of the Node,
@@ -21,13 +21,15 @@ type NodesMap map[int]*Node
 type Nodes []Node
 
 func FromOSMNode(n osm.Node) Node {
+  c := coordinates.Coordinates{
+    Lat: n.Lat,
+    Lng: n.Lon,
+  }
   return Node{
-    ID: int(n.ID),
-    Point: coordinates.Coordinates{
-      Lat: n.Lat,
-      Lng: n.Lon,
-    },
-    Tags: tag.FromOSMTags(n.Tags),
+    ID:     int(c.ToToken()),
+    //CellID: c.ToToken(),
+    //Point:  c,
+    //Tags:   tag.FromOSMTags(n.Tags),
   }
 }
 

@@ -5,6 +5,7 @@ import (
   "math"
   "strconv"
 
+  "github.com/golang/geo/s2"
   "github.com/umahmood/haversine"
 )
 
@@ -30,4 +31,9 @@ func FromStrings(latS, lngS string) (Coordinates, error) {
     return Coordinates{}, fmt.Errorf("invalid lng")
   }
   return Coordinates{Lat: lat, Lng: lng}, nil
+}
+
+func (c Coordinates) ToToken() uint64 {
+  return uint64(s2.CellFromPoint(s2.PointFromLatLng(
+    s2.LatLngFromDegrees(c.Lat, c.Lng))).ID().Parent(17)) //19
 }

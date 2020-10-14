@@ -64,6 +64,8 @@ func FromOSMFile(path string, weight edge.Weight) (Graph, error) {
 
   //array to array
   g.AddEdges(auxE)
+  resources.Ways = nil
+  resources.Relations = nil
   return g, nil
 }
 
