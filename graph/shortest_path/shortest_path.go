@@ -5,5 +5,5 @@ import (
 )
 
 type ShortestPath interface {
-  ShortestPath(start, end coordinates.Coordinates)
+  ShortestPath(start, end coordinates.Coordinates) []coordinates.Coordinates
 }
