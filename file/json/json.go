@@ -30,3 +30,15 @@ func Write(name string, content interface{}) string {
   }
   return f.Name()
 }
+
+func Read(reference interface{}, content []byte) error {
+  if len(content) == 0 {
+    log.Printf("Reading empty JSON")
+  }
+  err := json.Unmarshal(content, reference)
+  if err != nil {
+    log.Printf("Cant unrmashall JSON: %s", err.Error())
+    return err
+  }
+  return nil
+}

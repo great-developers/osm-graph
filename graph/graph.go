@@ -1,115 +1,104 @@
 package graph
 
 import (
-  "context"
+  jsonEncode "encoding/json"
+  "io/ioutil"
+  "log"
   "os"
 
-  "github.com/JesseleDuran/osm-graph/edge"
-  "github.com/JesseleDuran/osm-graph/node"
-  "github.com/JesseleDuran/osm-graph/resources"
-  "github.com/JesseleDuran/osm-graph/tag"
-  "github.com/paulmach/osm"
-  "github.com/paulmach/osm/osmxml"
+  "github.com/JesseleDuran/osm-graph/file/json"
+  "github.com/JesseleDuran/osm-graph/graph/edge"
+  "github.com/JesseleDuran/osm-graph/graph/node"
+  "github.com/golang/geo/s2"
 )
 
-//Graph it's the representation to be able to travel a geographical space.
 type Graph struct {
-  Nodes node.NodesMap
-  Edges edge.Edges
+  Nodes node.Nodes
 }
 
-func FromOSMFile(path string, weight edge.Weight) (Graph, error) {
-  g := Graph{}
-  f, err := os.Open(path)
+func FromJSONGraphFile(path string) Graph {
+  g := Graph{
+    Nodes: make(node.Nodes, 0),
+  }
+  graphFile := struct {
+    Edges [][]uint64 `json:"edges"`
+  }{}
+  file, err := ioutil.ReadFile(path)
   if err != nil {
-    return g, err
+    log.Printf("Couldn't read dump: %s", err.Error())
   }
-  defer f.Close()
-  scanner := osmxml.New(context.Background(), f)
-  defer scanner.Close()
-
-  for scanner.Scan() {
-    o := scanner.Object()
-    switch o.ObjectID().Type() {
-    case "node":
-      g.AddNode(node.FromOSMNode(*o.(*osm.Node)))
-
-    case "relation":
-      r := *o.(*osm.Relation)
-      auxTags := tag.FromOSMTags(r.Tags)
-      if _, ok := auxTags["building"]; !ok {
-        resources.Relations[r.ID.FeatureID().Ref()] = r
+  err = json.Read(&graphFile, file)
+  for _, e := range graphFile.Edges {
+    for i := 0; i < len(e)-1; i++ {
+      source := node.Node{
+        ID:       s2.CellID(e[i]),
+        Neighbor: nil,
+      }
+      destiny := node.Node{
+        ID:       s2.CellID(e[i+1]),
+        Neighbor: nil,
       }
 
-    case "way":
-      w := *o.(*osm.Way)
-      resources.Ways[w.ID.FeatureID().Ref()] = w
+      source.Neighbor[destiny.ID] = edge.Edge{
+        Weight: 2,
+      }
 
-    default:
+      destiny.Neighbor[source.ID] = edge.Edge{
+        Weight: 2,
+      }
+
+      g.Nodes[source.ID] = source
+      g.Nodes[destiny.ID] = destiny
+    }
+  }
+  return g
+}
+
+func FromJSONGraphFileStream(path string) Graph {
+  g := Graph{
+    Nodes: make(node.Nodes, 0),
+  }
+  jsonFile, _ := os.Open(path)
+  defer jsonFile.Close()
+  dec := jsonEncode.NewDecoder(jsonFile)
+  _, err := dec.Token()
+
+  if err != nil {
+    log.Printf("Error reading open bracket [ during JSON parsing %s", err.Error())
+    return g
+  }
+
+  for dec.More() {
+    e := make([]uint64, 0)
+    err := dec.Decode(&e)
+    if err != nil {
+      log.Printf("Error reading JSON structure during parsing %s", err.Error())
       continue
+      //return g
     }
-  }
-  scanErr := scanner.Err()
-  if scanErr != nil {
-    return g, scanErr
-  }
+    for i := 0; i < len(e)-1; i++ {
 
-  var auxE []edge.Edges
-  for _, v := range resources.Relations {
-    auxE = append(auxE, edge.FromOSMRelation(v, g.Nodes, weight))
-  }
-  for _, v := range resources.Ways {
-    auxE = append(auxE, edge.FromWays(v, g.Nodes, weight))
-  }
-
-  //array to array
-  g.AddEdges(auxE)
-  resources.Ways = nil
-  resources.Relations = nil
-  return g, nil
-}
-
-func (g *Graph) AddEdges(edges []edge.Edges) {
-  if g.Edges == nil {
-    g.Edges = make(edge.Edges)
-  }
-  for i := range edges {
-    for source, m := range edges[i] {
-
-      if _, ok := g.Edges[source]; !ok {
-        g.Edges[source] = make(map[int]*edge.Edge, 0)
+      source := node.Node{
+        ID:       s2.CellID(e[i]),
+        Neighbor: make(edge.Edges, 0),
+      }
+      destiny := node.Node{
+        ID:       s2.CellID(e[i+1]),
+        Neighbor: make(edge.Edges, 0),
       }
 
-      for related, e := range m {
-
-        if _, ok := g.Edges[related]; !ok {
-          g.Edges[related] = make(map[int]*edge.Edge, 0)
-        }
-
-        if v, ok := g.Edges[source][related]; ok {
-          if v.Weight > e.Weight {
-            g.Edges[source][related] = e
-          }
-        } else {
-          g.Edges[source][related] = e
-        }
-
-        if v, ok := g.Edges[related][source]; ok {
-          if v.Weight > e.Weight {
-            g.Edges[related][source] = e
-          }
-        } else {
-          g.Edges[related][source] = e
-        }
+      source.Neighbor[destiny.ID] = edge.Edge{
+        Weight: 2,
       }
+
+      destiny.Neighbor[source.ID] = edge.Edge{
+        Weight: 2,
+      }
+
+      g.Nodes[source.ID] = source
+      g.Nodes[destiny.ID] = destiny
     }
   }
-}
 
-// AddNode adds a node to the graph.
-func (g *Graph) AddNode(n node.Node) {
-  if g.Nodes == nil {
-    g.Nodes = make(node.NodesMap)
-  }
-  g.Nodes[n.ID] = &n
+  return g
 }

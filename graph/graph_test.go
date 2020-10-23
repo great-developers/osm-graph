@@ -4,54 +4,16 @@ import (
   "log"
   "testing"
   "time"
-
-  "github.com/JesseleDuran/osm-graph/node"
 )
 
-var g Graph
-
-func fillGraph() {
-  nA := node.Node{
-    ID: 1,
-  }
-  nB := node.Node{
-    ID: 2,
-  }
-  nC := node.Node{
-    ID: 3,
-  }
-  nD := node.Node{
-    ID: 4,
-  }
-  nE := node.Node{
-    ID: 5,
-  }
-  nF := node.Node{
-    ID: 6,
-  }
-  g.AddNode(nA)
-  g.AddNode(nB)
-  g.AddNode(nC)
-  g.AddNode(nD)
-  g.AddNode(nE)
-  g.AddNode(nF)
-
-  //g.AddEdge(1, 2)
-  //g.AddEdge(1, 3)
-  //g.AddEdge(2, 5)
-  //g.AddEdge(3, 5)
-  //g.AddEdge(5, 6)
-  //g.AddEdge(4, 1)
+func TestFromJSONGraphFile(t *testing.T) {
+  g := FromJSONGraphFile("testdata/osm-graph.json")
+  log.Println(len(g.Nodes))
+  time.Sleep(3*time.Hour)
 }
 
-func TestFromOSMFile(t *testing.T) {
-  g, _ := FromOSMFile("/Users/jesseleduran/Documents/secure route graph/osm-graph/graph/testdata/sp.osm", nil)
-  //g.NodesMap.ToGeojson()
-  log.Println("finished", len(g.Nodes))
-  //for k, _ := range g.NodesToCellID {
-  // c := s2.CellID(k)
-  // log.Println("token", c.LatLng())
-  //}
-  //log.Println(g.NodesToCellID)
-  time.Sleep(2*time.Hour)
+func TestFromJSONGraphFileStream(t *testing.T) {
+  g := FromJSONGraphFileStream("testdata/osm-graph-1.json")
+  log.Println(len(g.Nodes))
+  time.Sleep(3*time.Hour)
 }

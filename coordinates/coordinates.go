@@ -33,7 +33,7 @@ func FromStrings(latS, lngS string) (Coordinates, error) {
   return Coordinates{Lat: lat, Lng: lng}, nil
 }
 
-func (c Coordinates) ToToken() uint64 {
-  return uint64(s2.CellFromPoint(s2.PointFromLatLng(
-    s2.LatLngFromDegrees(c.Lat, c.Lng))).ID().Parent(17)) //19
+func (c Coordinates) ToToken() s2.CellID {
+  return s2.CellFromPoint(s2.PointFromLatLng(
+    s2.LatLngFromDegrees(c.Lat, c.Lng))).ID().Parent(17) //19
 }
