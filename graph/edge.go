@@ -1,4 +1,4 @@
-package edge
+package graph
 
 import (
   "github.com/golang/geo/s2"

@@ -52,7 +52,7 @@ func DijkstraFromToken(start, end s2.CellID, g graph.Graph) (PathWeight, Previou
     // if the node has edged, the loop through it.
     if v, ok := g.Nodes[min.Value]; ok {
       //change to normal for
-      for nodeNeighbor, e := range v.Neighbor {
+      for nodeNeighbor, e := range v.Neighbors {
 
         if visit[nodeNeighbor] {
           continue //change to negative condition
