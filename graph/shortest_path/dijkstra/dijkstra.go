@@ -49,6 +49,9 @@ func DijkstraFromToken(start, end s2.CellID, g graph.Graph) (PathWeight, Previou
     min, _ := remaining.Min()
     visit[min.Value] = true
     remaining.DeleteMin()
+    if min.Value == end {
+      break
+    }
     // if the node has edged, the loop through it.
     if v, ok := g.Nodes[min.Value]; ok {
       //change to normal for
