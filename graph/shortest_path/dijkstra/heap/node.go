@@ -1,4 +1,4 @@
-package node
+package heap
 
 import "github.com/golang/geo/s2"
 

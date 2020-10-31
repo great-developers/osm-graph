@@ -2,8 +2,6 @@ package heap
 
 import (
   "errors"
-
-  "github.com/JesseleDuran/osm-graph/graph/shortest_path/dijkstra/node"
 )
 
 var (
@@ -12,14 +10,14 @@ var (
 
 //Heap represents a priority heap based on the weight of its nodes.
 type Heap struct {
-  items node.Nodes
+  items Nodes
   size  int
 }
 
 //CreateN creates an empty heap of capacity N.
 func Create() Heap {
   return Heap{
-    items:    make(node.Nodes, 0),
+    items:    make(Nodes, 0),
     size:     0,
   }
 }
@@ -27,18 +25,18 @@ func Create() Heap {
 // Insert adds an element to the heap. Assigns the items in the first free
 // position, calls heapifyUp to restore heap condition, and increases the
 // counter of total of current data.
-func (h *Heap) Insert(n node.Node) {
+func (h *Heap) Insert(n Node) {
   h.items = append(h.items, n)
   h.size++
   h.heapifyUp()
 }
 
 // Min returns the minimum item of the heap.
-func (h *Heap) Min() (node.Node, error) {
+func (h *Heap) Min() (Node, error) {
   if !h.IsEmpty() {
     return h.items[0], nil
   }
-  return node.Node{}, ErrHeapEmpty
+  return Node{}, ErrHeapEmpty
 }
 
 // DeleteMin removes the first element. Extracts the root item and then calls
@@ -73,13 +71,13 @@ func (h *Heap) hasRightChild(i int) bool { return rightChildIndex(i) < h.size }
 func (h *Heap) hasParent(i int) bool { return parentIndex(i) >= 0 }
 
 // leftChild returns the left child of i.
-func (h *Heap) leftChild(i int) node.Node { return h.items[leftChildIndex(i)] }
+func (h *Heap) leftChild(i int) Node { return h.items[leftChildIndex(i)] }
 
 // rightChild returns the right child of i.
-func (h *Heap) rightChild(i int) node.Node { return h.items[rightChildIndex(i)] }
+func (h *Heap) rightChild(i int) Node { return h.items[rightChildIndex(i)] }
 
 // parent returns true parent of i.
-func (h *Heap) parent(i int) node.Node { return h.items[parentIndex(i)] }
+func (h *Heap) parent(i int) Node { return h.items[parentIndex(i)] }
 
 // heapifyUp performs the upward movement. Starts with the index of the last
 // item added and, as long as the parent is bigger than the current item, it

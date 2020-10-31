@@ -18,6 +18,6 @@ func (spa *ShortestPath) SetAlgorithm(a Algorithm) {
   spa.Algorithm = a
 }
 
-func (spa *ShortestPath) ShortestPath(start, end coordinates.Coordinates) []coordinates.Coordinates {
+func (spa *ShortestPath) ShortestPath(start, end coordinates.Coordinates) Response {
   return spa.Algorithm.ShortestPath(start, end)
 }

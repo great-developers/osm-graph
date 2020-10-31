@@ -6,7 +6,6 @@ import (
   "github.com/JesseleDuran/osm-graph/coordinates"
   "github.com/JesseleDuran/osm-graph/graph"
   "github.com/JesseleDuran/osm-graph/graph/shortest_path/dijkstra/heap"
-  "github.com/JesseleDuran/osm-graph/graph/shortest_path/dijkstra/node"
   "github.com/golang/geo/s2"
 )
 
@@ -33,7 +32,7 @@ func (d Dijkstra) FromTokens(start, end s2.CellID) (PathWeight, Previous) {
 
   remaining := heap.Create()
   // insert first node id the PQ, the start node.
-  remaining.Insert(node.Node{Value: start, Cost: 0})
+  remaining.Insert(heap.Node{Value: start, Cost: 0})
 
   // initialize pathWeight all to infinite value.
   for _, v := range d.graph.Nodes {
@@ -72,7 +71,7 @@ func (d Dijkstra) FromTokens(start, end s2.CellID) (PathWeight, Previous) {
           pathWeight[nodeNeighbor] = currentPathValue
           previous[nodeNeighbor] = min.Value
         }
-        remaining.Insert(node.Node{Value: nodeNeighbor, Cost: currentPathValue})
+        remaining.Insert(heap.Node{Value: nodeNeighbor, Cost: currentPathValue})
       }
     }
   }
