@@ -33,6 +33,13 @@ func FromStrings(latS, lngS string) (Coordinates, error) {
   return Coordinates{Lat: lat, Lng: lng}, nil
 }
 
+func FromS2LatLng(ll s2.LatLng) Coordinates {
+  return Coordinates{
+    Lat: ll.Lat.Degrees(),
+    Lng: ll.Lng.Degrees(),
+  }
+}
+
 func (c Coordinates) ToToken() s2.CellID {
   return s2.CellFromPoint(s2.PointFromLatLng(
     s2.LatLngFromDegrees(c.Lat, c.Lng))).ID().Parent(17) //19

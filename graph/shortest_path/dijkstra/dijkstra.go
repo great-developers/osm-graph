@@ -12,15 +12,19 @@ import (
 
 const INFINITE = math.MaxInt64
 
+type Dijkstra struct {
+  graph graph.Graph
+}
+
 type Previous map[s2.CellID]s2.CellID
 type PathWeight map[s2.CellID]float64
 
-func Dijkstra(start, end coordinates.Coordinates, g graph.Graph) (PathWeight, Previous) {
+func (d Dijkstra) ShortestPath(start, end coordinates.Coordinates) (PathWeight, Previous) {
   startCellID, endCellID := start.ToToken(), end.ToToken()
-  return DijkstraFromToken(startCellID, endCellID, g)
+  return d.FromTokens(startCellID, endCellID)
 }
 
-func DijkstraFromToken(start, end s2.CellID, g graph.Graph) (PathWeight, Previous) {
+func (d Dijkstra) FromTokens(start, end s2.CellID) (PathWeight, Previous) {
   //maps from each node to the total weight of the total shortest path.
   pathWeight := make(map[s2.CellID]float64, 0)
 
@@ -32,7 +36,7 @@ func DijkstraFromToken(start, end s2.CellID, g graph.Graph) (PathWeight, Previou
   remaining.Insert(node.Node{Value: start, Cost: 0})
 
   // initialize pathWeight all to infinite value.
-  for _, v := range g.Nodes {
+  for _, v := range d.graph.Nodes {
     pathWeight[v.ID] = INFINITE
   }
   //start node distance to itself is 0.
@@ -53,7 +57,7 @@ func DijkstraFromToken(start, end s2.CellID, g graph.Graph) (PathWeight, Previou
       break
     }
     // if the node has edged, the loop through it.
-    if v, ok := g.Nodes[min.Value]; ok {
+    if v, ok := d.graph.Nodes[min.Value]; ok {
       //change to normal for
       for nodeNeighbor, e := range v.Neighbors {
 

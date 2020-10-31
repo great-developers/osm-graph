@@ -5,6 +5,7 @@ import (
   "log"
   "os"
 
+  "github.com/JesseleDuran/osm-graph/coordinates"
   "github.com/golang/geo/s2"
 )
 
@@ -12,7 +13,7 @@ type Graph struct {
   Nodes Nodes
 }
 
-func FromJSONGraphFileStream(path string) Graph {
+func FromJSONGraphFileStream(path string, setWeight SetWeight) Graph {
   g := Graph{Nodes: make(Nodes, 0)}
   jsonFile, _ := os.Open(path)
   defer jsonFile.Close()
@@ -36,8 +37,17 @@ func FromJSONGraphFileStream(path string) Graph {
       source := Node{ID: s2.CellID(e[i]), Neighbors: make(Edges, 0)}
       destiny := Node{ID: s2.CellID(e[i+1]), Neighbors: make(Edges, 0)}
 
-      source.Neighbors[destiny.ID] = Edge{Weight: 2}
-      destiny.Neighbors[source.ID] = Edge{Weight: 2}
+      w := 0.0
+      sourcePoint := coordinates.FromS2LatLng(source.ID.LatLng())
+      destinyPoint := coordinates.FromS2LatLng(source.ID.LatLng())
+      if setWeight == nil {
+        w = coordinates.Distance(sourcePoint, destinyPoint)
+      } else {
+        w = setWeight(sourcePoint, destinyPoint)
+      }
+
+      source.Neighbors[destiny.ID] = Edge{Weight: w}
+      destiny.Neighbors[source.ID] = Edge{Weight: w}
 
       g.Nodes[source.ID] = source
       g.Nodes[destiny.ID] = destiny
