@@ -12,13 +12,13 @@ import (
 func TestBFS_Path(t *testing.T) {
 
   start := time.Now()
-  g := graph.FromJSONGraphFileStream("testdata/osm-graph-sp-16.json", nil)
+  g := graph.FromJSONGraphFileStream("testdata/osm-Graph-sp-16.json", nil)
   end := time.Since(start)
-  log.Println("done graph", end.Milliseconds(), len(g.Nodes))
-  //g.Nodes.ToGeojson()
+  log.Println("done Graph", end.Milliseconds(), len(g.Nodes))
+  g.Nodes.ToGeojson()
   time.Sleep(time.Hour)
 
-  bfs := BFS{graph: g}
+  bfs := BFS{Graph: g}
   //s := s2.CellIDFromToken("94ce50b26c")
   s := s2.CellIDFromToken("94ce50a5b")
   log.Println(s.LatLng().Lat.Degrees(), s.LatLng().Lng.Degrees())

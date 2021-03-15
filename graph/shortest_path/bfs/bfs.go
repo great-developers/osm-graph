@@ -8,7 +8,7 @@ import (
 )
 
 type BFS struct {
-  graph graph.Graph
+  Graph graph.Graph
 }
 
 func (g BFS) Path(start s2.CellID, m float64) graph.Nodes {
@@ -22,7 +22,7 @@ func (g BFS) Path(start s2.CellID, m float64) graph.Nodes {
     qnode := queue.Front()
     queue.Remove(qnode)
     cellID := qnode.Value.(s2.CellID)
-    for k, e := range g.graph.Nodes[cellID].Neighbors {
+    for k, e := range g.Graph.Nodes[cellID].Neighbors {
       if _, ok := visited[k]; ok {
         continue
       }
@@ -30,7 +30,7 @@ func (g BFS) Path(start s2.CellID, m float64) graph.Nodes {
       if currentWeight < m {
         visited[k] += currentWeight
         queue.PushBack(k)
-        result[k] = g.graph.Nodes[k]
+        result[k] = g.Graph.Nodes[k]
       }
     }
   }
