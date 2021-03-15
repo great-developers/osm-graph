@@ -3,14 +3,15 @@ package shortest_path
 import "github.com/JesseleDuran/osm-graph/coordinates"
 
 type Response struct {
-  Leg             []Leg
-  TotalDistanceKM float64
+  Leg         Legs
+  TotalWeight float64
 }
 
 type Leg struct {
-  Points     [2]Point
-  DistanceKM float64
+  Points [2]Point
 }
+
+type Legs []Leg
 
 type Point struct {
   Point coordinates.Coordinates

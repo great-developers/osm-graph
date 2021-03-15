@@ -1,9 +1,7 @@
 package dijkstra
 
 import (
-  "fmt"
   "log"
-  "math"
   "testing"
   "time"
 
@@ -13,28 +11,25 @@ import (
 
 func TestDijkstra(t *testing.T) {
   start := time.Now()
-  g := graph.FromJSONGraphFileStream("testdata/osm-graph-1.json")
+  g := graph.FromJSONGraphFileStream("testdata/osm-graph-sp.json", nil)
   end := time.Since(start)
   log.Println("done graph", end.Milliseconds(), len(g.Nodes))
-  //for k, _ := range g.Nodes {
-  // log.Println(k.ToToken())
+  g.Nodes.ToGeojson()
+  time.Sleep(time.Hour)
+  //d := Dijkstra{graph: g}
+  //s := s2.CellIDFromToken("94ce595164")
+  //e := s2.CellIDFromToken("94ce50b26c")
+  //_, prev := d.FromCellIDs(s, e)
+  //log.Println(prev)
+  //for k, v := range prev {
+  //  fmt.Println(s2.CellFromCellID(k).ID().ToToken(),
+  //    s2.CellFromCellID(v).ID().ToToken())
   //}
 
-  s := s2.CellIDFromToken("94ce595164")
-  e := s2.CellIDFromToken("94ce50b26c")
-  weight, prev := FromToken(s, e, g)
-  //
-  fmt.Println("----------------------------")
-  r := make([]s2.CellID, 0)
-  for k, v := range weight {
-    if v != math.MaxInt64 {
-      fmt.Println("k", k, v)
-      fmt.Println("rev", prev[k])
-      r = append(r, prev[k])
-    }
-  }
-  fmt.Println(len(r))
-  fmt.Println("----------------------------")
+  //fmt.Println("----------------------------")
+  //p := path(s, e, prev)
+  //fmt.Println("ola", p)
+  //fmt.Println("----------------------------")
 
   //log.Println(Path(7126102609, r[0], prev))
   //c := g.Nodes[r[0]]
@@ -66,14 +61,13 @@ func TestDijkstra(t *testing.T) {
 }
 
 func TestPath(t *testing.T) {
-  start, end := 1, 5
-  previous := map[int]int{
+  previous := map[s2.CellID]s2.CellID{
     1: 0,
     2: 1,
     3: 2,
     4: 3,
     5: 4,
   }
-  path := Path(start, end, previous)
+  path := path(1, 5, previous)
   log.Println(path)
 }

@@ -1,10 +1,12 @@
 package dijkstra
 
 import (
+  "log"
   "math"
 
   "github.com/JesseleDuran/osm-graph/coordinates"
   "github.com/JesseleDuran/osm-graph/graph"
+  "github.com/JesseleDuran/osm-graph/graph/shortest_path"
   "github.com/JesseleDuran/osm-graph/graph/shortest_path/dijkstra/heap"
   "github.com/golang/geo/s2"
 )
@@ -18,17 +20,21 @@ type Dijkstra struct {
 type Previous map[s2.CellID]s2.CellID
 type PathWeight map[s2.CellID]float64
 
-func (d Dijkstra) ShortestPath(start, end coordinates.Coordinates) (PathWeight, Previous) {
+func (d Dijkstra) ShortestPath(start, end coordinates.Coordinates) shortest_path.Response {
   startCellID, endCellID := start.ToToken(), end.ToToken()
-  return d.FromTokens(startCellID, endCellID)
+  pw, p := d.FromCellIDs(startCellID, endCellID)
+  return shortest_path.Response{
+    Leg:         toLegs(startCellID, endCellID, p),
+    TotalWeight: pw[endCellID],
+  }
 }
 
-func (d Dijkstra) FromTokens(start, end s2.CellID) (PathWeight, Previous) {
+func (d Dijkstra) FromCellIDs(start, end s2.CellID) (PathWeight, Previous) {
   //maps from each node to the total weight of the total shortest path.
-  pathWeight := make(map[s2.CellID]float64, 0)
+  pathWeight := make(PathWeight, 0)
 
   //maps from each node to the previous node in the "current" shortest path.
-  previous := make(map[s2.CellID]s2.CellID, 0)
+  previous := make(Previous, 0)
 
   remaining := heap.Create()
   // insert first node id the PQ, the start node.
@@ -79,29 +85,48 @@ func (d Dijkstra) FromTokens(start, end s2.CellID) (PathWeight, Previous) {
 }
 
 //key : end, value: prev
-func Path(start, end int, previous map[int]int) []int {
-  result := make([]int, 0)
+func path(start, end s2.CellID, previous Previous) []s2.CellID {
+  result := make([]s2.CellID, 0)
   result = append(result, end)
-  prev := 0
+  var prev s2.CellID
+  _, startOk := previous[start]
+  _, endOk := previous[end]
+  if !startOk && !endOk {
+    return result
+  }
+
   for prev != start {
     prev = previous[end]
     result = append(result, prev)
     end = prev
+    log.Println(prev, end)
   }
-  return result
+
+  resultSorted := make([]s2.CellID, len(result))
+  j := 0
+  for i := len(result) - 1; i >= 0; i-- {
+    resultSorted[j] = result[i]
+    j++
+  }
+  return resultSorted
 }
 
-//func CoordinatesPath(start, end coordinates.Coordinates, previous map[int]int,
-//  g graph.Graph) []coordinates.Coordinates {
-//  result := make([]coordinates.Coordinates, 0)
-//  s, e := start.ToToken(), end.ToToken()
-//  ms, me := g.NodesToCellID[s], g.NodesToCellID[e]
-//  result = append(result, g.Nodes[me].Point)
-//  prev := 0
-//  for prev != ms {
-//    prev = previous[me]
-//    result = append(result, g.Nodes[prev].Point)
-//    me = prev
-//  }
-//  return result
-//}
+func toLegs(start, end s2.CellID, previous Previous) shortest_path.Legs {
+  path := path(start, end, previous)
+  legs := make(shortest_path.Legs, len(path))
+  for i := 0; i < len(path)-1; i++ {
+    legs[i] = shortest_path.Leg{
+      Points: [2]shortest_path.Point{
+        {
+          Point: coordinates.FromS2LatLng(path[i].LatLng()),
+          Name:  "",
+        },
+        {
+          Point: coordinates.FromS2LatLng(path[i+1].LatLng()),
+          Name:  "",
+        },
+      },
+    }
+  }
+  return legs
+}
