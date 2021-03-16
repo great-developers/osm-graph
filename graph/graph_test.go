@@ -1,7 +1,9 @@
 package graph
 
 import (
+	"log"
 	"testing"
+	"time"
 
 	"github.com/golang/geo/s2"
 )
@@ -13,11 +15,11 @@ func TestGraph_AddNodes(t *testing.T) {
 		in  Node
 		out int
 	}{
-		{Node{ID: 24, OsmID: 0, Edges: nil}, 1},
+		{Node{Edges: nil}, 1},
 	}
 
 	for _, tt := range table {
-		g.AddNodes(tt.in)
+		g.AddNode(24, tt.in)
 		if len(g.Nodes) != tt.out {
 			t.Errorf("got %v, want %v", tt.in, tt.out)
 		}
@@ -51,11 +53,13 @@ func TestGraph_RelateNodes(t *testing.T) {
 
 	nodeA, nodeB := g.FindNodeOrCreate(idA), g.FindNodeOrCreate(idB)
 
-	if !nodeA.IsRelated(*nodeB) || !nodeB.IsRelated(*nodeA) {
+	if !nodeA.IsRelated(idB) || !nodeB.IsRelated(idA) {
 		t.Error("The nodes are not related", nodeA.Edges, nodeB.Edges)
 	}
 }
 
 func TestBuildFromJsonFile(t *testing.T) {
-	BuildFromJsonFile("testdata/osm-graph-sp-16.json")
+	g := BuildFromGob("testdata/graph-sp-17.gob")
+	log.Println(len(g.Nodes))
+	time.Sleep(time.Hour)
 }

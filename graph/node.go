@@ -7,13 +7,10 @@ import (
 )
 
 type Node struct {
-	ID    s2.CellID
-	OsmID int64
 	Edges Edges
 }
 
 type EncodedNode struct {
-	ID     int64
 	CellId uint64
 }
 
@@ -41,7 +38,7 @@ func (nodes Nodes) ToGeoJSON() {
 	json.Write("nodes.json", fc)
 }
 
-func (n Node) IsRelated(x Node) bool {
-	_, ok := n.Edges[x.ID]
+func (n Node) IsRelated(id s2.CellID) bool {
+	_, ok := n.Edges[id]
 	return ok
 }

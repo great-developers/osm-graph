@@ -1,6 +1,11 @@
 package graph
 
 import (
+	"container/list"
+	"encoding/gob"
+	"log"
+	"os"
+
 	"github.com/JesseleDuran/osm-graph/coordinates"
 	"github.com/JesseleDuran/osm-graph/json"
 	"github.com/golang/geo/s2"
@@ -13,7 +18,19 @@ type Graph struct {
 
 // newEmptyGraph creates a graph with 0 vertices.
 func newEmptyGraph() Graph {
-	return Graph{Nodes: make(Nodes, 0)}
+	return Graph{Nodes: make(Nodes)}
+}
+
+func BuildFromGob(path string) Graph {
+	file, _ := os.Open(path)
+	defer file.Close()
+	decoder := gob.NewDecoder(file)
+	var g Graph
+	err := decoder.Decode(&g)
+	if err != nil {
+		log.Panic("Error reading file")
+	}
+	return g
 }
 
 // BuildFromJsonFile creates a new graph from a json file.
@@ -31,14 +48,13 @@ func BuildFromJsonFile(path string) Graph {
 			}
 		}
 	}
+	decoder.Token()
 	return g
 }
 
 // Add note to the given graph.
-func (g *Graph) AddNodes(nodes ...Node) {
-	for _, n := range nodes {
-		g.Nodes[n.ID] = n
-	}
+func (g *Graph) AddNode(id s2.CellID, node Node) {
+	g.Nodes[id] = node
 }
 
 // FindOrCreateNode find a node on the graph by the given ID.
@@ -46,8 +62,8 @@ func (g *Graph) AddNodes(nodes ...Node) {
 func (g *Graph) FindNodeOrCreate(id s2.CellID) *Node {
 	node, ok := g.Nodes[id]
 	if !ok {
-		node = Node{ID: id, Edges: make(map[s2.CellID]Edge)}
-		g.AddNodes(node)
+		node = Node{Edges: make(map[s2.CellID]Edge)}
+		g.AddNode(id, node)
 	}
 	return &node
 }
@@ -55,11 +71,46 @@ func (g *Graph) FindNodeOrCreate(id s2.CellID) *Node {
 // RelateNodesByID relate two nodes using its IDs.
 func (g *Graph) RelateNodesByID(a, b s2.CellID) {
 	nodeA, nodeB := g.FindNodeOrCreate(a), g.FindNodeOrCreate(b)
-	pointA := coordinates.FromS2LatLng(nodeA.ID.LatLng())
-	pointB := coordinates.FromS2LatLng(nodeB.ID.LatLng())
+	pointA := coordinates.FromS2LatLng(a.LatLng())
+	pointB := coordinates.FromS2LatLng(b.LatLng())
 	w := coordinates.Distance(pointA, pointB)
 
 	// The relation of nodes is bi-directional.
-	nodeA.Edges[nodeB.ID] = Edge{Weight: w}
-	nodeB.Edges[nodeA.ID] = Edge{Weight: w}
+	nodeA.Edges[b] = Edge{Weight: w}
+	nodeB.Edges[a] = Edge{Weight: w}
+}
+
+func (g Graph) BFS(start s2.CellID, m float64) Nodes {
+	result := make(Nodes, 0)
+	visited := make(map[s2.CellID]float64)
+	queue := list.New()
+	queue.PushBack(start)
+	visited[start] = 0
+
+	for queue.Len() > 0 {
+		qnode := queue.Front()
+		queue.Remove(qnode)
+		cellID := qnode.Value.(s2.CellID)
+		for k, e := range g.Nodes[cellID].Edges {
+			if _, ok := visited[k]; !ok {
+				currentWeight := visited[cellID] + e.Weight
+				if currentWeight < m {
+					visited[k] += currentWeight
+					queue.PushBack(k)
+					result[k] = g.Nodes[k]
+				}
+			}
+		}
+	}
+	return result
+}
+
+func (g Graph) Encode() {
+	file, _ := os.Create("graph-sp-17.gob")
+
+	defer file.Close()
+
+	encoder := gob.NewEncoder(file)
+
+	log.Println(encoder.Encode(g))
 }
