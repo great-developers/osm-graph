@@ -21,6 +21,7 @@ func newEmptyGraph() Graph {
 	return Graph{Nodes: make(Nodes)}
 }
 
+// Build creates a new graph from a .gob file.
 func BuildFromGob(path string) Graph {
 	file, _ := os.Open(path)
 	defer file.Close()
@@ -74,10 +75,15 @@ func (g *Graph) RelateNodesByID(a, b s2.CellID) {
 	pointA := coordinates.FromS2LatLng(a.LatLng())
 	pointB := coordinates.FromS2LatLng(b.LatLng())
 	w := coordinates.Distance(pointA, pointB)
+	edge := Edge{Weight: w}
 
 	// The relation of nodes is bi-directional.
-	nodeA.Edges[b] = Edge{Weight: w}
-	nodeB.Edges[a] = Edge{Weight: w}
+	if edgeA, ok := nodeA.Edges[b]; !ok || edgeA.Weight > w {
+		nodeA.Edges[b] = edge
+	}
+	if edgeB, ok := nodeB.Edges[a]; !ok || edgeB.Weight > w {
+		nodeB.Edges[a] = edge
+	}
 }
 
 func (g Graph) BFS(start s2.CellID, m float64) Nodes {
@@ -105,12 +111,10 @@ func (g Graph) BFS(start s2.CellID, m float64) Nodes {
 	return result
 }
 
+// Encode a graph.
 func (g Graph) Encode() {
 	file, _ := os.Create("graph-sp-17.gob")
-
 	defer file.Close()
-
 	encoder := gob.NewEncoder(file)
-
-	log.Println(encoder.Encode(g))
+	encoder.Encode(g)
 }

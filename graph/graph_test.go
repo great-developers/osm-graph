@@ -59,7 +59,7 @@ func TestGraph_RelateNodes(t *testing.T) {
 }
 
 func TestBuildFromJsonFile(t *testing.T) {
-	g := BuildFromGob("testdata/graph-sp-17.gob")
+	g := BuildFromJsonFile("testdata/osm-graph-sp-16.json")
 	log.Println(len(g.Nodes))
 	time.Sleep(time.Hour)
 }
