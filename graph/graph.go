@@ -8,6 +8,7 @@ import (
 
 	"github.com/JesseleDuran/osm-graph/coordinates"
 	"github.com/JesseleDuran/osm-graph/json"
+	"github.com/JesseleDuran/osm-graph/store"
 	"github.com/golang/geo/s2"
 )
 
@@ -117,4 +118,17 @@ func (g Graph) Encode() {
 	defer file.Close()
 	encoder := gob.NewEncoder(file)
 	encoder.Encode(g)
+}
+
+// TODO Remove this function after test stores locations on the graph.
+func (g Graph) AddStore(store store.Store) bool {
+	cid := s2.CellIDFromLatLng(s2.LatLngFromDegrees(store.Lat, store.Lng))
+	cid = cid.Parent(17)
+	if _, ok := g.Nodes[cid]; !ok {
+		//log.Println("The store", store, "is not present on the graph :(", cid.ToToken())
+		return false
+	}
+	node := g.Nodes[cid]
+	node.AddStore(store)
+	return true
 }

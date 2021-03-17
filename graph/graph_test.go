@@ -1,10 +1,12 @@
 package graph
 
 import (
+	"fmt"
 	"log"
 	"testing"
 	"time"
 
+	"github.com/JesseleDuran/osm-graph/store"
 	"github.com/golang/geo/s2"
 )
 
@@ -59,7 +61,25 @@ func TestGraph_RelateNodes(t *testing.T) {
 }
 
 func TestBuildFromJsonFile(t *testing.T) {
-	g := BuildFromJsonFile("testdata/osm-graph-sp-16.json")
-	log.Println(len(g.Nodes))
+	g := BuildFromJsonFile("testdata/osm-graph-sp-17.json")
+
+	stores := store.FromCSV("testdata/sp-stores.csv")
+	log.Println(len(stores))
+	count := 0
+	tokens := make(map[string]bool)
+	for _, s := range stores {
+		if !g.AddStore(s) {
+			ll := s2.LatLngFromDegrees(s.Lat, s.Lng)
+			token := s2.CellIDFromLatLng(ll).Parent(17).ToToken()
+			tokens[token] = true
+			count++
+		}
+	}
+
+	for k := range tokens {
+		fmt.Println(k)
+	}
+
+	log.Println("the graph needs:", len(tokens))
 	time.Sleep(time.Hour)
 }

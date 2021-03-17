@@ -2,12 +2,14 @@ package graph
 
 import (
 	"github.com/JesseleDuran/osm-graph/json"
+	"github.com/JesseleDuran/osm-graph/store"
 	"github.com/golang/geo/s2"
 	geojson "github.com/paulmach/go.geojson"
 )
 
 type Node struct {
-	Edges Edges
+	Edges  Edges
+	Stores []store.Store
 }
 
 type EncodedNode struct {
@@ -41,4 +43,8 @@ func (nodes Nodes) ToGeoJSON() {
 func (n Node) IsRelated(id s2.CellID) bool {
 	_, ok := n.Edges[id]
 	return ok
+}
+
+func (n *Node) AddStore(s store.Store) {
+	n.Stores = append(n.Stores, s)
 }
